@@ -4,6 +4,6 @@
      
         chmod +x start_python.sh
       
-2.Run the shell script to install dependency
+2.Run the shell script to install dependency and run simulation script
 
         ./start_python.sh
