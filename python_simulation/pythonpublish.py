@@ -107,10 +107,10 @@ while True:
 		currentBin = binLevelArray[x-1]
 		currentBinLocation = binLocationArray[x-1]
 		
-		data = str({'binid':str(x),'time':str('{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())),'binlevel':str(currentBin),'binlocation':str(currentBinLocation)})
+		data = '{"binid":"'+str(x)+'","time":"'+"{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())+'","binlevel":"'+str(currentBin)+'","binlocation":"'+str(currentBinLocation)+'"}'
 		print(data)
 
-		myAWSIoTMQTTClient.publish(topic, str(data), 1)
+		myAWSIoTMQTTClient.publish(topic, data, 1)
 		time.sleep(5)
 
 	print (count, ". bin1 value is", bin1, " bin2 value is", bin2," bin3 value is", bin3, " bin4 value is", bin4," bin5 value is", bin5)
