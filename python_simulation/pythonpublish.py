@@ -17,7 +17,7 @@ bin5 = 0
 bin1location = '12.901060,77.614589'
 bin2location = '12.926712,77.600398'
 bin3location = '12.936500,77.585078'
-bin4location = '12.951515,77.590399'
+bin4location = '12.9384362,77.6303143'
 bin5location = '12.965902,77.604776'
 
 binLocationArray = [bin1location,bin2location,bin3location,bin4location,bin5location]
