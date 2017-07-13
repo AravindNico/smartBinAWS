@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+        <meta charset="utf-8">
+        <meta name="referrer" content="no-referrer"> <!-- don't send HTTP referer for privacy purpose and to use Google Maps Geocoding API without key -->
+        <title>Smart Bin Tracking</title>
+        <link rel="stylesheet" type="text/css" href="index.css">
+        <script src = "https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    </head>
+    <body>
+        <div id="map"></div>
+        <div id="right-panel">
+            <div>
+                <b>Start:</b>
+                <select id="start">
+                    <option value="Alchemy Nilayam, Hosur Rd, Chennakeshava Nagar, Nanpnalli, Adugodi, Bengaluru, Karnataka 560027, India">start-Adugodi</option>
+                    <option value="EWS Colony, Stage 2, BTM Layout, Bengaluru, Karnataka, India">BTM Layout</option>
+                    <option value="Ashrama, Bannerghatta Main Rd, NAL Layout, 4th T Block East, Tilak Nagar, Jayanagar, Bengaluru, Karnataka 560041, India">Tilak Nagar</option>
+                    <option value="Rupasree Nilayam, 6th Block, 1st Block, Jaya Nagar East, Jayanagar, Bengaluru, Karnataka 560011, India">Jaya Nagar East</option>
+                    <option value="Shila Giri Complex, 100 Feet Rd, Chandra Reddy Layout, S T Bed Layout, Ejipura, Bengaluru, Karnataka 560095, India">Ejipura</option>
+                    <option value="MTB Mahaameru Building, Wellington St, Richmond Town, Bengaluru, Karnataka 560025, India">Richmond Town</option>
+                </select>
+                <br>
+                
+                <br>
+                <b>End:</b>
+                <select id="end">
+                    <option value="Alchemy Nilayam, Hosur Rd, Chennakeshava Nagar, Nanpnalli, Adugodi, Bengaluru, Karnataka 560027, India">destination-Adugodi</option>
+                    <option value="EWS Colony, Stage 2, BTM Layout, Bengaluru, Karnataka, India">BTM Layout</option>
+                    <option value="Ashrama, Bannerghatta Main Rd, NAL Layout, 4th T Block East, Tilak Nagar, Jayanagar, Bengaluru, Karnataka 560041, India">Tilak Nagar</option>
+                    <option value="Rupasree Nilayam, 6th Block, 1st Block, Jaya Nagar East, Jayanagar, Bengaluru, Karnataka 560011, India">Jaya Nagar East</option>
+                    <option value="Shila Giri Complex, 100 Feet Rd, Chandra Reddy Layout, S T Bed Layout, Ejipura, Bengaluru, Karnataka 560095, India">Ejipura</option>
+                    <option value="MTB Mahaameru Building, Wellington St, Richmond Town, Bengaluru, Karnataka 560025, India">Richmond Town</option>
+                </select>
+                <br>
+                <input type="submit" id="submit" placeholder="auto route">
+            </div>
+            <div id="directions-panel"></div>
+        </div>
+        <script src="aws-iot-sdk-browser-bundle.js"></script>
+        <!-- // <script src="bundle.js"></script> -->
+        <script src="index.js"></script>
+        <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDeX-TtNCPKsJUiz26mrEuvz7saIuJxgXc&callback=initMap"></script>
+
+    </body>
+</html>
