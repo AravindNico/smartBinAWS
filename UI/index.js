@@ -133,7 +133,7 @@ window.customIcons = function(topic,payload){
     
     var dataPayload = JSON.parse(payload.toString())
     console.log(dataPayload)
-    var iconBase = '/home/aravind/WORK/WebApp/mapRouting/final/';
+    var iconBase = '/binIcons/';
     if(parseInt(dataPayload.binlevel) < 20){
         var icons = {
             url: iconBase + 'tcan_1.png',

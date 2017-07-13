@@ -8,13 +8,13 @@ if [ ! -f ./root-CA.crt ]; then
 fi
 
 # install AWS Device SDK for Python if not already installed
-# if [ ! -d ./aws-iot-device-sdk-python ]; then
-#   printf "\nInstalling AWS SDK...\n"
-#   git clone https://github.com/aws/aws-iot-device-sdk-python.git
-#   pushd aws-iot-device-sdk-python
-#   python setup.py install
-#   popd
-# fi
+if [ ! -d ./aws-iot-device-sdk-python ]; then
+  printf "\nInstalling AWS SDK...\n"
+  git clone https://github.com/aws/aws-iot-device-sdk-python.git
+  pushd aws-iot-device-sdk-python
+  python setup.py install
+  popd
+fi
 
 # run pub/sub sample app using certificates downloaded in package
 printf "\nRunning pub/sub sample application...\n"
