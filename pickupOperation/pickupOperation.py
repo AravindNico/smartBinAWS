@@ -15,7 +15,7 @@ smartBinAWSIoTMQTTClient = None
 
 BINPICKUP_THRESHOLD = 60;
 
-def my_random_string(string_length=10):
+def generateClientId(string_length=10):
     """Returns a random string of length string_length."""
     random = str(uuid.uuid4()) # Convert UUID format to a Python string.
     # random = random.upper() # Make all characters uppercase.
@@ -49,8 +49,7 @@ def AWSInitialization():
 	certificatePath = args.certificatePath
 	privateKeyPath = args.privateKeyPath
 	useWebsocket = args.useWebsocket
-	# clientId = args.clientId
-	clientId = args.clientId.join(my_random_string(6))
+	clientId = args.clientId.join(generateClientId(6))
 	topic = args.topic
 
 	if args.useWebsocket and args.certificatePath and args.privateKeyPath:

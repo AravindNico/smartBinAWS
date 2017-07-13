@@ -51,7 +51,7 @@ BINPICKUP_THRESHOLD = 60;
 SLOW_FILLING_RATE = 2;
 FAST_FILLING_RATE = 5;
 
-def my_random_string(string_length=10):
+def generateClientId(string_length=10):
     """Returns a random string of length string_length."""
     random = str(uuid.uuid4()) # Convert UUID format to a Python string.
     # random = random.upper() # Make all characters uppercase.
@@ -65,23 +65,11 @@ def debugCallback(client, userdata, message):
 	binClearUpMessage = json.loads(message.payload.decode("utf-8"))
 	print(binClearUpMessage)
 	print("--------------\n\n")
+	binID = {"1":"bin1","2":"bin2","3":"bin3","4":"bin4","5":"bin5"}
 	if(binClearUpMessage["requestType"] == '1'):
-		print("reset")
-		if(binClearUpMessage["binid"] == '1'):
-			binLevelDB["bin1"]["level"] = 0
-		elif(binClearUpMessage["binid"] == '2'):
-			binLevelDB["bin2"]["level"] = 0
-		elif(binClearUpMessage["binid"] == '3'):
-			binLevelDB["bin3"]["level"] = 0
-		elif(binClearUpMessage["binid"] == '4'):
-			binLevelDB["bin4"]["level"] = 0
-		elif(binClearUpMessage["binid"] == '5'):
-			binLevelDB["bin5"]["level"] = 0
+		binLevelDB[binID[binClearUpMessage["binid"]]]["level"] = 0
 	else:
 		pass
-
-	
-
 
 def AWSInitialization():
 	global smartBinAWSIoTMQTTClient,topic
@@ -101,8 +89,7 @@ def AWSInitialization():
 	certificatePath = args.certificatePath
 	privateKeyPath = args.privateKeyPath
 	useWebsocket = args.useWebsocket
-	# clientId = args.clientId
-	clientId = args.clientId.join(my_random_string(6))
+	clientId = args.clientId.join(generateClientId(6))
 	topic = args.topic
 
 	if args.useWebsocket and args.certificatePath and args.privateKeyPath:
@@ -146,14 +133,14 @@ def binOperation():
 	global smartBinAWSIoTMQTTClient,topic, binLevelDB
 
 	for key in binLevelDB:
-		if binLevelDB[key]["fillFrequency"] == 0:
-			binLevelDB[key]["level"] = binLevelDB[key]["level"] + random.randint(1,SLOW_FILLING_RATE)
-		else:
-			binLevelDB[key]["level"] = binLevelDB[key]["level"] + random.randint(FAST_FILLING_RATE,FAST_FILLING_RATE+3)
-
 		if binLevelDB[key]["level"] <= BINFILLING_THRESHOLD:
+			
+			if binLevelDB[key]["fillFrequency"] == 0:
+				binLevelDB[key]["level"] = binLevelDB[key]["level"] + random.randint(1,SLOW_FILLING_RATE)
+			else:
+				binLevelDB[key]["level"] = binLevelDB[key]["level"] + random.randint(FAST_FILLING_RATE,FAST_FILLING_RATE+3)
+			
 			data = '{"requestType":"0","binid":"'+str(binLevelDB[key]["id"])+'","time":"'+"{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())+'","binlevel":"'+str(binLevelDB[key]["level"])+'","binlocation":"'+str(binLevelDB[key]["binLocation"])+'"}'	
-			# print (data)
 			smartBinAWSIoTMQTTClient.publish(topic, data, 1)
 		time.sleep(3)
 

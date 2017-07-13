@@ -1,0 +1,10 @@
+awsConfig = {    
+ 	"ServerType":"AWS",            
+ 	"Config": {                 
+ 		"poolId": "us-east-1:69b9ab5c-60c4-466b-8d8b-0713be599e61",                
+ 		"host": "a1irgsu21jifu4.iot.us-east-1.amazonaws.com",                 
+ 		"region": "us-east-1", 
+ 		"subscribedTopic":"binoperation",              
+ 		"Protocol": "mqtt"             
+ 	}         
+};

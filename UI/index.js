@@ -5,19 +5,19 @@
 // WebSocket connection to AWS IoT and device shadow APIs.
 // 
 var AWS = require('aws-sdk');
-
 var AWSIoTData = require('aws-iot-device-sdk');
+var ConfigData = awsConfig;
 
 var AWSConfiguration = {
-    poolId: 'us-east-1:69b9ab5c-60c4-466b-8d8b-0713be599e61', // 'YourCognitoIdentityPoolId'
-    host: 'a1irgsu21jifu4.iot.us-east-1.amazonaws.com', // 'YourAWSIoTEndpoint', e.g. 'prefix.iot.us-east-1.amazonaws.com'
-    region: 'us-east-1' // 'YourAwsRegion', e.g. 'us-east-1'
+    poolId: ConfigData.Config.poolId, // 'YourCognitoIdentityPoolId'
+    host: ConfigData.Config.host, // 'YourAWSIoTEndpoint', e.g. 'prefix.iot.us-east-1.amazonaws.com'
+    region: ConfigData.Config.region // 'YourAwsRegion', e.g. 'us-east-1'
 };
 
 console.log('Loaded AWS SDK for JavaScript and AWS IoT SDK for Node.js');
 
 // Remember our current subscription topic here.
-var currentlySubscribedTopic = 'binoperation';
+var currentlySubscribedTopic = ConfigData.Config.subscribedTopic;
 
 // Remember our message history here.
 var messageHistory = '';
@@ -107,23 +107,12 @@ window.mqttClientReconnectHandler = function() {
 };
 
 //
-// Message handler for lifecycle events;
-//
-window.mqttClientMessageHandler = function(topic, payload) {
-   console.log('message: ' + topic + ':' + payload.toString());
-};
-
-
-//
 // Install connect/reconnect event handlers.
 //
 mqttClient.on('connect', window.mqttClientConnectHandler);
 mqttClient.on('reconnect', window.mqttClientReconnectHandler);
-// mqttClient.on('message', window.mqttClientMessageHandler);
-
 
 // Create DynamoDB service object
-// var ddb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
 var docClient = new AWS.DynamoDB.DocumentClient();
 var waypts = [];
 var map;
@@ -133,7 +122,7 @@ window.customIcons = function(topic,payload){
     
     var dataPayload = JSON.parse(payload.toString())
     console.log(dataPayload)
-    var iconBase = '/binIcons/';
+    var iconBase = 'binIcons/';
     if(parseInt(dataPayload.binlevel) < 20){
         var icons = {
             url: iconBase + 'tcan_1.png',
