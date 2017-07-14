@@ -59,15 +59,15 @@ def generateClientId(string_length=10):
     return random[0:string_length] # Return the random string.
 
 # Custom MQTT message callback
-def debugCallback(client, userdata, message):
+def pickupResetCallback(client, userdata, message):
 	print("Received a new message: ")
 	print(message.topic)
 	binClearUpMessage = json.loads(message.payload.decode("utf-8"))
 	print(binClearUpMessage)
 	print("--------------\n\n")
-	binID = {"1":"bin1","2":"bin2","3":"bin3","4":"bin4","5":"bin5"}
+
 	if(binClearUpMessage["requestType"] == '1'):
-		binLevelDB[binID[binClearUpMessage["binid"]]]["level"] = 0
+		binLevelDB["bin"+binClearUpMessage["binid"]]["level"] = 0
 	else:
 		pass
 
@@ -119,7 +119,7 @@ def AWSInitialization():
 
 	# Connect and subscribe to AWS IoT
 	smartBinAWSIoTMQTTClient.connect()
-	smartBinAWSIoTMQTTClient.subscribe(topic, 1, debugCallback)
+	smartBinAWSIoTMQTTClient.subscribe(topic, 1, pickupResetCallback)
 
 	# Configure logging
 	logger = logging.getLogger("AWSIoTPythonSDK.core")
@@ -142,6 +142,9 @@ def binOperation():
 			
 			data = '{"requestType":"0","binid":"'+str(binLevelDB[key]["id"])+'","time":"'+"{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())+'","binlevel":"'+str(binLevelDB[key]["level"])+'","binlocation":"'+str(binLevelDB[key]["binLocation"])+'"}'	
 			smartBinAWSIoTMQTTClient.publish(topic, data, 1)
+		else:
+			data = '{"requestType":"0","binid":"'+str(binLevelDB[key]["id"])+'","time":"'+"{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())+'","binlevel":"'+str(binLevelDB[key]["level"])+'","binlocation":"'+str(binLevelDB[key]["binLocation"])+'"}'
+			smartBinAWSIoTMQTTClient.publish(topic, data, 1)	
 		time.sleep(3)
 
 if __name__ == '__main__':
