@@ -15,13 +15,13 @@ binLevelDB = {
 		"id":1,
 		"level": 0,
 		"fillFrequency": 0,
-		"binLocation": '12.901060,77.614589'
+		"binLocation": '12.905911, 77.612603'
 	},
 	"bin2":{
 		"id":2,
 		"level": 0,
 		"fillFrequency": 1,
-		"binLocation": '12.926712,77.600398'
+		"binLocation": '12.916868, 77.583318'
 	},
 	"bin3":{
 		"id":3,
@@ -49,7 +49,7 @@ BINFILLING_THRESHOLD = 95;
 BINPICKUP_THRESHOLD = 60;
 
 SLOW_FILLING_RATE = 2;
-FAST_FILLING_RATE = 5;
+FAST_FILLING_RATE = 3;
 
 def generateClientId(string_length=10):
     """Returns a random string of length string_length."""
@@ -60,6 +60,7 @@ def generateClientId(string_length=10):
 
 # Custom MQTT message callback
 def pickupResetCallback(client, userdata, message):
+	global smartBinAWSIoTMQTTClient,topic
 	print("Received a new message: ")
 	print(message.topic)
 	binClearUpMessage = json.loads(message.payload.decode("utf-8"))
@@ -68,6 +69,9 @@ def pickupResetCallback(client, userdata, message):
 
 	if(binClearUpMessage["requestType"] == '1'):
 		binLevelDB["bin"+binClearUpMessage["binid"]]["level"] = 0
+		data = '{"requestType":"0","binid":"'+str(binClearUpMessage["binid"])+'","time":"'+"{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())+'","binlevel":"'+str(binClearUpMessage["binlevel"])+'","binlocation":"'+str(binClearUpMessage["binlocation"])+'"}'
+		print(data)
+		smartBinAWSIoTMQTTClient.publish(topic, data, 1)
 	else:
 		pass
 
@@ -138,7 +142,7 @@ def binOperation():
 			if binLevelDB[key]["fillFrequency"] == 0:
 				binLevelDB[key]["level"] = binLevelDB[key]["level"] + random.randint(1,SLOW_FILLING_RATE)
 			else:
-				binLevelDB[key]["level"] = binLevelDB[key]["level"] + random.randint(FAST_FILLING_RATE,FAST_FILLING_RATE+3)
+				binLevelDB[key]["level"] = binLevelDB[key]["level"] + random.randint(FAST_FILLING_RATE,FAST_FILLING_RATE+2)
 			
 			data = '{"requestType":"0","binid":"'+str(binLevelDB[key]["id"])+'","time":"'+"{:%Y-%m-%d %H:%M:%S}".format(datetime.datetime.now())+'","binlevel":"'+str(binLevelDB[key]["level"])+'","binlocation":"'+str(binLevelDB[key]["binLocation"])+'"}'	
 			smartBinAWSIoTMQTTClient.publish(topic, data, 1)

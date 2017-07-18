@@ -116,6 +116,8 @@ mqttClient.on('reconnect', window.mqttClientReconnectHandler);
 var docClient = new AWS.DynamoDB.DocumentClient();
 var waypts = [];
 var map;
+var wayptsOrder ;
+var pickupBinsList =[];
 
 window.customIcons = function(topic,payload){
 
@@ -151,7 +153,7 @@ window.customIcons = function(topic,payload){
         }
         markerColorMapping(icons)
     }
-    else if(parseInt(dataPayload.binlevel) < 99){
+    else if(parseInt(dataPayload.binlevel) < 110){
         var icons = {
             url: iconBase + 'tcan_5.png',
             scaledSize: new google.maps.Size(30, 30)
@@ -161,11 +163,11 @@ window.customIcons = function(topic,payload){
     function markerColorMapping(icons){
         var binData = {
             "1":{
-                position: new google.maps.LatLng(12.901060,77.614589),
+                position: new google.maps.LatLng(12.905911, 77.612603),
                 title: "BTM Layout"
             },
             "2":{
-                position: new google.maps.LatLng(12.926712,77.600398),
+                position: new google.maps.LatLng(12.916868, 77.583318),
                 title: "Jayanagar East"
             },
             "3":{
@@ -212,20 +214,19 @@ window.initMap = function(){
     });
 
     directionsDisplay.setMap(map);
-    mqttClient.on('message', window.customIcons);
     
     document.getElementById('submit').addEventListener('click', function() {
         calculateAndDisplayRoute(map,directionsService, directionsDisplay);
     });
 }
 
+mqttClient.on('message', window.customIcons);
 
 function calculateAndDisplayRoute(map,directionsService, directionsDisplay) {
     var geocoder = new google.maps.Geocoder;
-    var waypts = [];
     for(var i = 1 ; i <= 5 ; i++){
         var params = {
-            TableName: 'bls_demo_data',
+            TableName: ConfigData.Config.dynamoDBTable,
             KeyConditionExpression: 'binid = :v1',
             ExpressionAttributeValues: {
                 ':v1': i
@@ -239,18 +240,16 @@ function calculateAndDisplayRoute(map,directionsService, directionsDisplay) {
             if (err) {
                 console.log("Error", err);
             } else {
-                // console.log(data.Items[0].binid)
-                if(data.Items[0].binlevel > 60){
+                if(data.Items[0].binlevel > ConfigData.Config.binpickupThreshold){
                     var loc = data.Items[0].binlocation
                     latlong = loc.split(",",2);
                     var l = {lat:parseFloat(latlong[0]),lng:parseFloat(latlong[1])}
                     geocoder.geocode({'location': l}, function(results, status) {
-                        // console.log(i,results,status)
                         if (status === 'OK') {
                             if (results[1]) {
-                                // console.log(results[1].formatted_address)
+                                pickupBinsList.push({binid : data.Items[0].binid,time : data.Items[0].time,binlevel : data.Items[0].binlevel ,binlocation : data.Items[0].binlocation})
                                 waypts.push({location:results[1].formatted_address,stopover:true})
-                                console.log(waypts.length)
+                                // console.log(waypts)
                             } else {
                                 window.alert('No results found');
                             }
@@ -265,7 +264,7 @@ function calculateAndDisplayRoute(map,directionsService, directionsDisplay) {
     }
     setTimeout(
         function(){ 
-            console.log(waypts,i)
+            // console.log(waypts,i)
             var startpt = document.getElementById('start').value;
             var stoppt = document.getElementById('end').value;
             directionsService.route({
@@ -275,9 +274,12 @@ function calculateAndDisplayRoute(map,directionsService, directionsDisplay) {
                 optimizeWaypoints: true,
                 travelMode: 'DRIVING'
             }, function(response, status) {
+                console.log(status,response)
                     if (status === 'OK') {
                         directionsDisplay.setDirections(response);
                         var route = response.routes[0];
+                        wayptsOrder = route.waypoint_order
+                        // console.log(wayptsOrder)
                         var summaryPanel = document.getElementById('directions-panel');
                         summaryPanel.innerHTML = '';
                 // For each route, display summary information.
@@ -289,8 +291,33 @@ function calculateAndDisplayRoute(map,directionsService, directionsDisplay) {
                             summaryPanel.innerHTML += route.legs[i].distance.text + '<br><br>';
                         }
                     } else {
+                        console.log("error response : ",response)
                         window.alert('Directions request failed due to ' + status);
                     }
             }); 
         }, 3000);
+}
+
+function pickupOperation() {
+    publishTopic = ConfigData.Config.subscribedTopic
+    // console.log(pickupBinsList,wayptsOrder)   
+   
+    var i = 0
+    pickupPublish(i)
+    function pickupPublish(i){
+        setTimeout(function(){
+            if(i < wayptsOrder.length){
+                publishMessage = '{"requestType":"1","binid":"'+pickupBinsList[wayptsOrder[i]].binid+'","time":"'+pickupBinsList[wayptsOrder[i]].time+'","binlevel":"0","binlocation":"'+pickupBinsList[wayptsOrder[i]].binlocation+'"}'
+                console.log("to publish :",publishMessage)
+                mqttClient.publish(publishTopic, publishMessage);
+                i++;
+                console.log("i :",i)
+                pickupPublish(i)
+            }else{
+                pickupBinsList = [];
+                wayptsOrder = [];
+                waypts = [];
+            }
+        },5000)
+    }
 }
